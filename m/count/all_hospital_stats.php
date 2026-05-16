@@ -79,11 +79,25 @@ $all_not = 0;
 
 foreach ($hospital_ids as $hospital_id) {
     $table = "patient_" . $hospital_id;
-    $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
-    $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
-    $all_content += $content;
-    $all_come += $come_count;
-    $all_not += ($content - $come_count);
+    if ($come == -1) {
+        $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
+        $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
+        $all_content += $content;
+        $all_come += $come_count;
+        $all_not += ($content - $come_count);
+    } elseif ($come == 1) {
+        $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
+        $all_come += $content;
+        $all_content = $all_come;
+        $all_not = 0;
+    } else {
+        $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
+        $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
+        $not_count = $content - $come_count;
+        $all_not += $not_count;
+        $all_content = $all_not;
+        $all_come = 0;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -147,10 +161,24 @@ foreach ($hospital_ids as $hospital_id) {
                                 <tbody>
                                     <?php foreach ($hospital_ids as $hospital_id) {
                                         $table = "patient_" . $hospital_id;
-                                        $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
-                                        $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
-                                        $not_count = $content - $come_count;
-                                        $rate = $content > 0 ? round($come_count / $content * 100, 2) : 0;
+                                        if ($come == -1) {
+                                            $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
+                                            $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
+                                            $not_count = $content - $come_count;
+                                            $rate = $content > 0 ? round($come_count / $content * 100, 2) : 0;
+                                        } elseif ($come == 1) {
+                                            $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
+                                            $come_count = $content;
+                                            $not_count = 0;
+                                            $rate = 100;
+                                        } else {
+                                            $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
+                                            $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
+                                            $not_count = $content - $come_count;
+                                            $content = $not_count;
+                                            $come_count = 0;
+                                            $rate = 0;
+                                        }
                                     ?>
                                     <tr><td><?php echo $hospital_id; ?></td><td><?php echo $content; ?></td><td><?php echo $come_count; ?></td><td><?php echo $not_count; ?></td><td><?php echo $rate; ?>%</td></tr>
                                     <?php } ?>

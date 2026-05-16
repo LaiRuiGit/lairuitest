@@ -17,7 +17,7 @@ $hospital_list = $db->query("select id,name from hospital where id in (".implode
 $part_id_name = $db->query("select id,name from sys_part", 'id', 'name');
 // --------------------
 
-// ʱ����޶���:
+// ʱ����޶���?
 $today_tb = mktime(0,0,0);
 $today_te = $today_tb + 24*3600;
 $yesterday_tb = $today_tb - 24*3600;
@@ -43,8 +43,7 @@ $zhoubi_te = $zhoubi_tb + 24*3600;
 
 // ͬ��:
 $tb_tb = strtotime("-1 month", $month_tb); //ͬ��ʱ�俪ʼ
-$tb_te = strtotime("-1 month", time()); //ͬ��ʱ�����
-
+$tb_te = strtotime("-1 month", time()); //ͬ��ʱ�����?
 
 
 
@@ -175,12 +174,12 @@ if ($uinfo["part_id"] == 12) {
 		<button class="button" onClick="hgo('up');">��</button>&nbsp;
 		<button class="button" onClick="hgo('down');">��</button>&nbsp;
 <?php if ($user_hospital_id > 0) { ?>
-		<button class="buttonb" onClick="self.location='/m/patient/patient.php?time_type=order_date&sort=ԤԼʱ��&show=today&come=0'" title="�鿴����δ����طù˿�">�طù˿�</button>&nbsp;
+		<button class="buttonb" onClick="self.location='/m/patient/patient.php?time_type=order_date&sort=ԤԼʱ��&show=today&come=0'" title="�鿴����δ����طù˿�?>�طù˿�</button>&nbsp;
 		<button class="buttonb AllMsg"  title="�鿴�����ŵ�������">�緽ͳ��</button>&nbsp;
         <button class="buttonb AllMsg2"  title="�鿴�����ŵ�������">������ͳ��</button>&nbsp;
         <button class="buttonb"><a href="history.php" target="_blank">��¼��ʷ</a></button>
 	<?php if ($debug_mode || $username == "admin" || $uinfo["part_id"] == 3) { ?>
-		<button class="buttonb" onClick="self.location='/m/patient/patient.php?list_huifang=1'" title="�鿴������طù��Ĺ˿�">�ҵĻط�</button>&nbsp;
+		<button class="buttonb" onClick="self.location='/m/patient/patient.php?list_huifang=1'" title="�鿴������طù��Ĺ˿�?>�ҵĻط�</button>&nbsp;
 	<?php } ?>
 <?php }?>
 
@@ -195,9 +194,9 @@ if($_SESSION[$cfgSessionName]["username"]=="admin")
         <div style="margin-top:20px;">��ǰ�ŵ꣺<b><?php echo $hospital_list[$user_hospital_id]["name"];?></b>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <?php if ($user_hospital_id > 0) { ?>
-            <button class="buttonb" onClick="self.location='/m/patient/patient.php?time_type=order_date&sort=ԤԼʱ��&show=today&come=0'" title="�鿴����δ����طù˿�">�طù˿�</button>&nbsp;
+            <button class="buttonb" onClick="self.location='/m/patient/patient.php?time_type=order_date&sort=ԤԼʱ��&show=today&come=0'" title="�鿴����δ����طù˿�?>�طù˿�</button>&nbsp;
         <?php if ($debug_mode || $username == "admin" || $uinfo["part_id"] == 3) { ?>
-            <button class="buttonb" onClick="self.location='/m/patient/patient.php?list_huifang=1'" title="�鿴������طù��Ĺ˿�">�ҵĻط�</button>&nbsp;
+            <button class="buttonb" onClick="self.location='/m/patient/patient.php?list_huifang=1'" title="�鿴������طù��Ĺ˿�?>�ҵĻط�</button>&nbsp;
         <?php } ?>
     <?php }?>
     
@@ -215,7 +214,7 @@ if($_SESSION[$cfgSessionName]["username"]=="admin")
 </div>
 
 
-<!-- ѡ���ŵ�� -->
+<!-- ѡ���ŵ��?-->
 <?php if ($user_hospital_id > 0) { ?>
 
 <!-- ԤԼ����Ȩ�� -->
@@ -258,8 +257,8 @@ if ($_GET["show"] == "sql") {
 	$yesterdayAllContent = 0;  //�������е� ���ܹ�
 	$yesterdayAllCome = 0;    //�������е� �� �ѵ�
 
-	$thismonthAllContent = 0;  //��������е� ���ܹ�
-	$thismonthAllCome = 0;    //��������е� �� �ѵ�
+	$thismonthAllContent = 0;  //��������е�?���ܹ�
+	$thismonthAllCome = 0;    //��������е�?�� �ѵ�
 
 	$lastmonthAllContent = 0;  //shang�������е� ���ܹ�
 	$lastmonthAllCome = 0;    //shang�������е� �� �ѵ�
@@ -276,8 +275,8 @@ if ($_GET["show"] == "sql") {
     $yesterdayAllContent_D = 0;  //�������е� ���ܹ�
     $yesterdayAllCome_D = 0;    //�������е� �� �ѵ�
 
-    $thismonthAllContent_D = 0;  //��������е� ���ܹ�
-    $thismonthAllCome_D = 0;    //��������е� �� �ѵ�
+    $thismonthAllContent_D = 0;  //��������е�?���ܹ�
+    $thismonthAllCome_D = 0;    //��������е�?�� �ѵ�
 
     $lastmonthAllContent_D = 0;  //shang�������е� ���ܹ�
     $lastmonthAllCome_D = 0;    //shang�������е� �� �ѵ�
@@ -355,7 +354,7 @@ if ($_GET["show"] == "sql") {
 //�緽
 	$todayAllNot = $todayAllContent - $todayAllCome;  //�������е꣺ δ��
 	$yesterdayAllNot = $yesterdayAllContent - $yesterdayAllCome;    //�������е�   ��δ��
-	$thismonthAllNot = $thismonthAllContent - $thismonthAllCome;   //��������е� ��δ��
+	$thismonthAllNot = $thismonthAllContent - $thismonthAllCome;   //��������е�?��δ��
 	$lastmonthAllNot = $lastmonthAllContent - $lastmonthAllCome;   //shang�������е� ��δ��
 	$tbAllNot = $tbAllContent - $tbAllCome;   //���е� ͬ��
 
@@ -363,7 +362,7 @@ if ($_GET["show"] == "sql") {
 //������
     $todayAllNot_D = $todayAllContent_D - $todayAllCome_D;  //�������е꣺ δ��
     $yesterdayAllNot_D = $yesterdayAllContent_D - $yesterdayAllCome_D;    //�������е�   ��δ��
-    $thismonthAllNot_D = $thismonthAllContent_D - $thismonthAllCome_D;   //��������е� ��δ��
+    $thismonthAllNot_D = $thismonthAllContent_D - $thismonthAllCome_D;   //��������е�?��δ��
     $lastmonthAllNot_D = $lastmonthAllContent_D - $lastmonthAllCome_D;   //shang�������е� ��δ��
     $tbAllNot_D = $tbAllContent_D - $tbAllCome_D;   //���е� ͬ��
 
@@ -660,24 +659,24 @@ $web_tb3 = $db->query("select count(*) as count from $table where media_from='{$
 			<tr>
 				<td class="left">���գ�</td>
 				<td class="right">
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=today" target="_blank">�ܹ�: <b><?=$todayAllContent?></b></a>&nbsp;&nbsp; 
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=today&come=1" target="_blank">�ѵ�: <b><?=$todayAllCome;  ?></b></a>&nbsp;&nbsp;
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=today&come=0" target="_blank">δ��: <b><?=$todayAllNot?></b></a>
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=today" target="_blank">总人�? <b><?=$todayAllContent?></b></a>&nbsp;&nbsp;
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=today&come=1" target="_blank">已到: <b><?=$todayAllCome;  ?></b></a>&nbsp;&nbsp;
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=today&come=0" target="_blank">未到: <b><?=$todayAllNot?></b></a>
 				</td>
 			</tr>
 			<tr>
-				<td class="left">���գ�</td>
+				<td class="left">昨日�?/td>
 				<td class="right">
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=yesterday" target="_blank">�ܹ�: <b><?=$yesterdayAllContent?></b></a> &nbsp;&nbsp;
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=yesterday&come=1" target="_blank">�ѵ�: <b><?=$yesterdayAllCome?></b></a> &nbsp;&nbsp; 
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=yesterday&come=0" target="_blank">δ��: <b><?=$yesterdayAllNot?></b></a></td>
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=yesterday" target="_blank">总人�? <b><?=$yesterdayAllContent?></b></a>&nbsp;&nbsp;
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=yesterday&come=1" target="_blank">已到: <b><?=$yesterdayAllCome?></b></a>&nbsp;&nbsp;
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=yesterday&come=0" target="_blank">未到: <b><?=$yesterdayAllNot?></b></a></td>
 			</tr>
 			<tr>
 				<td class="left">���£�</td>
 				<td class="right">
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=thismonth" target="_blank">�ܹ�: <b><?=$thismonthAllContent?></b></a> &nbsp;&nbsp; 
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=thismonth&come=1" target="_blank">�ѵ�: <b><?=$thismonthAllCome?></b></a> &nbsp;&nbsp; 
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=thismonth&come=0" target="_blank">δ��: <b><?=$thismonthAllNot?></b></a>
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=thismonth" target="_blank">总人�? <b><?=$thismonthAllContent?></b></a>&nbsp;&nbsp; 
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=thismonth&come=1" target="_blank">已到: <b><?=$thismonthAllCome?></b></a>&nbsp;&nbsp; 
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=thismonth&come=0" target="_blank">未到: <b><?=$thismonthAllNot?></b></a>
 				</td>
 			</tr>
 			<tr>
@@ -688,9 +687,9 @@ $web_tb3 = $db->query("select count(*) as count from $table where media_from='{$
 			<tr>
 				<td class="left">���£�</td>
 				<td class="right">
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=lastmonth" target="_blank">�ܹ�: <b><?=$lastmonthAllContent?></b></a> &nbsp;&nbsp; 
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=lastmonth&come=1" target="_blank">�ѵ�: <b><?=$lastmonthAllCome?></b></a> &nbsp;&nbsp; 
-					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=lastmonth&come=0" target="_blank">δ��: <b><?=$lastmonthAllNot?></b></a>
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=lastmonth" target="_blank">总人�? <b><?=$lastmonthAllContent?></b></a>&nbsp;&nbsp; 
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=lastmonth&come=1" target="_blank">已到: <b><?=$lastmonthAllCome?></b></a>&nbsp;&nbsp; 
+					<a href="/m/count/all_hospital_stats.php?table_type=miaofang&show=lastmonth&come=0" target="_blank">未到: <b><?=$lastmonthAllNot?></b></a>
 				</td>
 			</tr>
 		</table>
@@ -818,24 +817,24 @@ $web_tb3 = $db->query("select count(*) as count from $table where media_from='{$
             <tr>
                 <td class="left">���գ�</td>
                 <td class="right">
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=today" target="_blank">�ܹ�: <b><?=$todayAllContent_D?></b></a>&nbsp;&nbsp;
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=today&come=1" target="_blank">�ѵ�: <b><?=$todayAllCome_D;  ?></b></a>&nbsp;&nbsp;
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=today&come=0" target="_blank">δ��: <b><?=$todayAllNot_D?></b></a>
+                    <a href="javascript:void(0)">�ܹ�: <b><?=$todayAllContent_D?></b></a>&nbsp;&nbsp;
+                    <a href="javascript:void(0)">�ѵ�: <b><?=$todayAllCome_D;  ?></b></a>&nbsp;&nbsp;
+                    <a href="javascript:void(0)">δ��: <b><?=$todayAllNot_D?></b></a>
                 </td>
             </tr>
             <tr>
                 <td class="left">���գ�</td>
                 <td class="right">
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=yesterday" target="_blank">�ܹ�: <b><?=$yesterdayAllContent_D?></b></a> &nbsp;&nbsp;
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=yesterday&come=1" target="_blank">�ѵ�: <b><?=$yesterdayAllCome_D?></b></a> &nbsp;&nbsp;
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=yesterday&come=0" target="_blank">δ��: <b><?=$yesterdayAllNot_D?></b></a></td>
+                    <a href="javascript:void(0)">�ܹ�: <b><?=$yesterdayAllContent_D?></b></a> &nbsp;&nbsp;
+                    <a href="javascript:void(0)">�ѵ�: <b><?=$yesterdayAllCome_D?></b></a> &nbsp;&nbsp;
+                    <a href="javascript:void(0)">δ��: <b><?=$yesterdayAllNot_D?></b></a></td>
             </tr>
             <tr>
                 <td class="left">���£�</td>
                 <td class="right">
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=thismonth" target="_blank">�ܹ�: <b><?=$thismonthAllContent_D?></b></a> &nbsp;&nbsp;
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=thismonth&come=1" target="_blank">�ѵ�: <b><?=$thismonthAllCome_D?></b></a> &nbsp;&nbsp;
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=thismonth&come=0" target="_blank">δ��: <b><?=$thismonthAllNot_D?></b></a>
+                    <a href="javascript:void(0)">�ܹ�: <b><?=$thismonthAllContent_D?></b></a> &nbsp;&nbsp;
+                    <a href="javascript:void(0)">�ѵ�: <b><?=$thismonthAllCome_D?></b></a> &nbsp;&nbsp;
+                    <a href="javascript:void(0)">δ��: <b><?=$thismonthAllNot_D?></b></a>
                 </td>
             </tr>
             <tr>
@@ -846,9 +845,9 @@ $web_tb3 = $db->query("select count(*) as count from $table where media_from='{$
             <tr>
                 <td class="left">���£�</td>
                 <td class="right">
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=lastmonth" target="_blank">�ܹ�: <b><?=$lastmonthAllContent_D?></b></a> &nbsp;&nbsp;
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=lastmonth&come=1" target="_blank">�ѵ�: <b><?=$lastmonthAllCome_D?></b></a> &nbsp;&nbsp;
-                    <a href="/m/count/all_hospital_stats.php?table_type=doyimei&show=lastmonth&come=0" target="_blank">δ��: <b><?=$lastmonthAllNot_D?></b></a>
+                    <a href="javascript:void(0)">�ܹ�: <b><?=$lastmonthAllContent_D?></b></a> &nbsp;&nbsp;
+                    <a href="javascript:void(0)">�ѵ�: <b><?=$lastmonthAllCome_D?></b></a> &nbsp;&nbsp;
+                    <a href="javascript:void(0)">δ��: <b><?=$lastmonthAllNot_D?></b></a>
                 </td>
             </tr>
         </table>
