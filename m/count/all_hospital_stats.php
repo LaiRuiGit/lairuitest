@@ -2,18 +2,28 @@
 require "../../core/core.php";
 
 $mod = "patient";
-$table_type = $_GET["table_type"] ?? "miaofang";
-$show = $_GET["show"] ?? "today";
+$table_type = isset($_GET["table_type"]) ? $_GET["table_type"] : "miaofang";
+$show = isset($_GET["show"]) ? $_GET["show"] : "today";
 $come = isset($_GET["come"]) ? intval($_GET["come"]) : -1;
-$media = $_GET["media"] ?? "";
-$time_type = $_GET["time_type"] ?? "order_date";
+$media = isset($_GET["media"]) ? $_GET["media"] : "";
+$time_type = isset($_GET["time_type"]) ? $_GET["time_type"] : "order_date";
+
+function convert_encoding($str, $to_encoding, $from_encoding = "UTF-8") {
+    if (function_exists('iconv')) {
+        return iconv($from_encoding, $to_encoding, $str);
+    } elseif (function_exists('mb_convert_encoding')) {
+        return mb_convert_encoding($str, $to_encoding, $from_encoding);
+    } else {
+        return $str;
+    }
+}
 
 if ($table_type == "miaofang") {
     $hospital_ids = array(12, 13, 14, 15, 16, 17, 19, 20);
-    $title = iconv("UTF-8", "GBK", "苗方统计");
+    $title = convert_encoding("苗方统计", "GBK");
 } else {
     $hospital_ids = array(22, 23, 24, 25);
-    $title = iconv("UTF-8", "GBK", "痘艺美统计");
+    $title = convert_encoding("痘艺美统计", "GBK");
 }
 
 $today_tb = mktime(0, 0, 0);
@@ -28,27 +38,27 @@ switch ($show) {
     case "today":
         $tb = $today_tb;
         $te = $today_te;
-        $time_label = iconv("UTF-8", "GBK", "今天");
+        $time_label = convert_encoding("今天", "GBK");
         break;
     case "yesterday":
         $tb = $yesterday_tb;
         $te = $today_tb;
-        $time_label = iconv("UTF-8", "GBK", "昨天");
+        $time_label = convert_encoding("昨天", "GBK");
         break;
     case "thismonth":
         $tb = $month_tb;
         $te = $month_te;
-        $time_label = iconv("UTF-8", "GBK", "本月");
+        $time_label = convert_encoding("本月", "GBK");
         break;
     case "lastmonth":
         $tb = $lastmonth_tb;
         $te = $lastmonth_te;
-        $time_label = iconv("UTF-8", "GBK", "上月");
+        $time_label = convert_encoding("上月", "GBK");
         break;
     default:
         $tb = $today_tb;
         $te = $today_te;
-        $time_label = iconv("UTF-8", "GBK", "今天");
+        $time_label = convert_encoding("今天", "GBK");
 }
 
 $where = array();
@@ -104,7 +114,7 @@ foreach ($hospital_ids as $hospital_id) {
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=gb2312">
-    <title><?php echo $title; ?> - <?php echo $time_label; ?><?php echo iconv("UTF-8", "GBK", "统计"); ?></title>
+    <title><?php echo $title; ?> - <?php echo $time_label; ?><?php echo convert_encoding("统计", "GBK"); ?></title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
     <link href="../../css/style.min.css" rel="stylesheet">
 </head>
@@ -114,40 +124,40 @@ foreach ($hospital_ids as $hospital_id) {
         <div class="col-md-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><?php echo $title; ?> - <?php echo $time_label; ?><?php echo iconv("UTF-8", "GBK", "统计详情"); ?></h3>
+                    <h3><?php echo $title; ?> - <?php echo $time_label; ?><?php echo convert_encoding("统计详情", "GBK"); ?></h3>
                 </div>
                 <div class="ibox-content">
                     <div class="row" style="margin-bottom:20px;">
                         <div class="col-md-12">
-                            <strong><?php echo iconv("UTF-8", "GBK", "统计条件："); ?></strong>
-                            <?php echo iconv("UTF-8", "GBK", "时间："); ?><?php echo $time_label; ?> |
-                            <?php if ($come == 1): ?><?php echo iconv("UTF-8", "GBK", "状态：已到诊"); ?><?php elseif ($come == 0): ?><?php echo iconv("UTF-8", "GBK", "状态：未到诊"); ?><?php else: ?><?php echo iconv("UTF-8", "GBK", "状态：全部"); ?><?php endif; ?>
-                            <?php if ($media): ?> | <?php echo iconv("UTF-8", "GBK", "媒体来源："); ?><?php echo $media; ?><?php endif; ?>
+                            <strong><?php echo convert_encoding("统计条件：", "GBK"); ?></strong>
+                            <?php echo convert_encoding("时间：", "GBK"); ?><?php echo $time_label; ?> |
+                            <?php if ($come == 1): ?><?php echo convert_encoding("状态：已到诊", "GBK"); ?><?php elseif ($come == 0): ?><?php echo convert_encoding("状态：未到诊", "GBK"); ?><?php else: ?><?php echo convert_encoding("状态：全部", "GBK"); ?><?php endif; ?>
+                            <?php if ($media): ?> | <?php echo convert_encoding("媒体来源：", "GBK"); ?><?php echo $media; ?><?php endif; ?>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-3">
                             <div class="panel panel-primary">
-                                <div class="panel-heading text-center"><h4><?php echo iconv("UTF-8", "GBK", "总人数"); ?></h4></div>
+                                <div class="panel-heading text-center"><h4><?php echo convert_encoding("总人数", "GBK"); ?></h4></div>
                                 <div class="panel-body text-center" style="font-size:36px;"><strong><?php echo $all_content; ?></strong></div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="panel panel-success">
-                                <div class="panel-heading text-center"><h4><?php echo iconv("UTF-8", "GBK", "已到诊"); ?></h4></div>
+                                <div class="panel-heading text-center"><h4><?php echo convert_encoding("已到诊", "GBK"); ?></h4></div>
                                 <div class="panel-body text-center" style="font-size:36px;"><strong><?php echo $all_come; ?></strong></div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="panel panel-warning">
-                                <div class="panel-heading text-center"><h4><?php echo iconv("UTF-8", "GBK", "未到诊"); ?></h4></div>
+                                <div class="panel-heading text-center"><h4><?php echo convert_encoding("未到诊", "GBK"); ?></h4></div>
                                 <div class="panel-body text-center" style="font-size:36px;"><strong><?php echo $all_not; ?></strong></div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="panel panel-info">
-                                <div class="panel-heading text-center"><h4><?php echo iconv("UTF-8", "GBK", "到诊率"); ?></h4></div>
+                                <div class="panel-heading text-center"><h4><?php echo convert_encoding("到诊率", "GBK"); ?></h4></div>
                                 <div class="panel-body text-center" style="font-size:36px;"><strong><?php echo $all_content > 0 ? round($all_come / $all_content * 100, 2) : 0; ?>%</strong></div>
                             </div>
                         </div>
@@ -155,9 +165,9 @@ foreach ($hospital_ids as $hospital_id) {
 
                     <div class="row" style="margin-top:30px;">
                         <div class="col-md-12">
-                            <h4><?php echo iconv("UTF-8", "GBK", "各医院统计明细"); ?></h4>
+                            <h4><?php echo convert_encoding("各医院统计明细", "GBK"); ?></h4>
                             <table class="table table-bordered table-striped">
-                                <thead><tr><th><?php echo iconv("UTF-8", "GBK", "医院ID"); ?></th><th><?php echo iconv("UTF-8", "GBK", "总人数"); ?></th><th><?php echo iconv("UTF-8", "GBK", "已到诊"); ?></th><th><?php echo iconv("UTF-8", "GBK", "未到诊"); ?></th><th><?php echo iconv("UTF-8", "GBK", "到诊率"); ?></th></tr></thead>
+                                <thead><tr><th><?php echo convert_encoding("医院ID", "GBK"); ?></th><th><?php echo convert_encoding("总人数", "GBK"); ?></th><th><?php echo convert_encoding("已到诊", "GBK"); ?></th><th><?php echo convert_encoding("未到诊", "GBK"); ?></th><th><?php echo convert_encoding("到诊率", "GBK"); ?></th></tr></thead>
                                 <tbody>
                                     <?php foreach ($hospital_ids as $hospital_id) {
                                         $table = "patient_" . $hospital_id;
@@ -189,8 +199,8 @@ foreach ($hospital_ids as $hospital_id) {
 
                     <div class="row" style="margin-top:30px;">
                         <div class="col-md-12 text-center">
-                            <button class="btn btn-default" onclick="window.close();"><?php echo iconv("UTF-8", "GBK", "关闭页面"); ?></button>
-                            <button class="btn btn-primary" onclick="window.history.back();"><?php echo iconv("UTF-8", "GBK", "返回上一页"); ?></button>
+                            <button class="btn btn-default" onclick="window.close();"><?php echo convert_encoding("关闭页面", "GBK"); ?></button>
+                            <button class="btn btn-primary" onclick="window.history.back();"><?php echo convert_encoding("返回上一页", "GBK"); ?></button>
                         </div>
                     </div>
                 </div>
