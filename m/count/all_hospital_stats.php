@@ -36,28 +36,28 @@ $lastmonth_te = $month_tb;
 
 switch ($show) {
     case "today":
-        $tb = $today_tb;
-        $te = $today_te;
+        $begin_time = $today_tb;
+        $end_time = $today_te;
         $time_label = convert_encoding("今天", "GBK");
         break;
     case "yesterday":
-        $tb = $yesterday_tb;
-        $te = $today_tb;
+        $begin_time = $yesterday_tb;
+        $end_time = $today_tb;
         $time_label = convert_encoding("昨天", "GBK");
         break;
     case "thismonth":
-        $tb = $month_tb;
-        $te = $month_te;
+        $begin_time = $month_tb;
+        $end_time = $month_te;
         $time_label = convert_encoding("本月", "GBK");
         break;
     case "lastmonth":
-        $tb = $lastmonth_tb;
-        $te = $lastmonth_te;
+        $begin_time = $lastmonth_tb;
+        $end_time = $lastmonth_te;
         $time_label = convert_encoding("上月", "GBK");
         break;
     default:
-        $tb = $today_tb;
-        $te = $today_te;
+        $begin_time = $today_tb;
+        $end_time = $today_te;
         $time_label = convert_encoding("今天", "GBK");
 }
 
@@ -81,42 +81,75 @@ if ($media != "") {
     $where[] = "media_from='" . addslashes($media) . "'";
 }
 
+if ($come != -1) {
+    if ($come == 1) {
+        $where[] = "status in (1,4,5,6)";
+    } else {
+        $where[] = "status in (0,2)";
+    }
+}
+
 $sqlwhere = implode(" and ", $where);
 
-$all_content = 0;
-$all_come = 0;
-$all_not = 0;
+$status_array = array(
+    0 => array("text" => convert_encoding("等待", "GBK"), "class" => "label label-primary"),
+    1 => array("text" => convert_encoding("已到", "GBK"), "class" => "label label-success"),
+    2 => array("text" => convert_encoding("未到", "GBK"), "class" => "label label-danger"),
+    3 => array("text" => convert_encoding("过期", "GBK"), "class" => "label label-default"),
+    4 => array("text" => convert_encoding("回访", "GBK"), "class" => "label label-warning"),
+    5 => array("text" => convert_encoding("退款", "GBK"), "class" => "label label-info"),
+    6 => array("text" => convert_encoding("全退", "GBK"), "class" => "label label-purple")
+);
+
+$hospital_id_name = $db->query("select id,name from hospital", 'id', 'name');
+$disease_id_name = $db->query("select id,name from disease", 'id', 'name');
+
+$pagesize = 20;
+$page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
+
+$all_count = 0;
+$all_data = array();
 
 foreach ($hospital_ids as $hospital_id) {
     $table = "patient_" . $hospital_id;
-    if ($come == -1) {
-        $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
-        $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
-        $all_content += $content;
-        $all_come += $come_count;
-        $all_not += ($content - $come_count);
-    } elseif ($come == 1) {
-        $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
-        $all_come += $content;
-        $all_content = $all_come;
-        $all_not = 0;
-    } else {
-        $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
-        $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
-        $not_count = $content - $come_count;
-        $all_not += $not_count;
-        $all_content = $all_not;
-        $all_come = 0;
-    }
+    $count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$begin_time and order_date<$end_time", 1, "count");
+    $all_count += $count;
+    
+    $offset = ($page - 1) * $pagesize;
+    $data = $db->query("select *, $hospital_id as hospital_id from $table where $sqlwhere and order_date>=$begin_time and order_date<$end_time order by order_date desc limit $offset,$pagesize");
+    $all_data = array_merge($all_data, $data);
 }
+
+usort($all_data, function($a, $b) {
+    return $b["order_date"] - $a["order_date"];
+});
+
+$pagecount = max(ceil($all_count / $pagesize), 1);
+$page = max(min($pagecount, $page), 1);
+
+$param_str = "table_type=$table_type&show=$show";
+if ($come != -1) $param_str .= "&come=$come";
+if ($media != "") $param_str .= "&media=" . urlencode($media);
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=gb2312">
-    <title><?php echo $title; ?> - <?php echo $time_label; ?><?php echo convert_encoding("统计", "GBK"); ?></title>
+    <title><?php echo $title; ?> - <?php echo $time_label; ?><?php echo convert_encoding("患者列表", "GBK"); ?></title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
     <link href="../../css/style.min.css" rel="stylesheet">
+    <style type="text/css">
+        .label-purple {
+            background-color: #9b59b6;
+        }
+        table {
+            font-size: 12px;
+        }
+        th, td {
+            text-align: center;
+            vertical-align: middle !important;
+        }
+    </style>
 </head>
 <body>
 <div class="container-fluid" style="padding:20px;">
@@ -124,7 +157,7 @@ foreach ($hospital_ids as $hospital_id) {
         <div class="col-md-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><?php echo $title; ?> - <?php echo $time_label; ?><?php echo convert_encoding("统计详情", "GBK"); ?></h3>
+                    <h3><?php echo $title; ?> - <?php echo $time_label; ?><?php echo convert_encoding("患者列表", "GBK"); ?></h3>
                 </div>
                 <div class="ibox-content">
                     <div class="row" style="margin-bottom:20px;">
@@ -133,67 +166,92 @@ foreach ($hospital_ids as $hospital_id) {
                             <?php echo convert_encoding("时间：", "GBK"); ?><?php echo $time_label; ?> |
                             <?php if ($come == 1): ?><?php echo convert_encoding("状态：已到诊", "GBK"); ?><?php elseif ($come == 0): ?><?php echo convert_encoding("状态：未到诊", "GBK"); ?><?php else: ?><?php echo convert_encoding("状态：全部", "GBK"); ?><?php endif; ?>
                             <?php if ($media): ?> | <?php echo convert_encoding("媒体来源：", "GBK"); ?><?php echo $media; ?><?php endif; ?>
+                            | <?php echo convert_encoding("总人数：", "GBK"); ?><strong><?php echo $all_count; ?></strong>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="panel panel-primary">
-                                <div class="panel-heading text-center"><h4><?php echo convert_encoding("总人数", "GBK"); ?></h4></div>
-                                <div class="panel-body text-center" style="font-size:36px;"><strong><?php echo $all_content; ?></strong></div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="panel panel-success">
-                                <div class="panel-heading text-center"><h4><?php echo convert_encoding("已到诊", "GBK"); ?></h4></div>
-                                <div class="panel-body text-center" style="font-size:36px;"><strong><?php echo $all_come; ?></strong></div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="panel panel-warning">
-                                <div class="panel-heading text-center"><h4><?php echo convert_encoding("未到诊", "GBK"); ?></h4></div>
-                                <div class="panel-body text-center" style="font-size:36px;"><strong><?php echo $all_not; ?></strong></div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="panel panel-info">
-                                <div class="panel-heading text-center"><h4><?php echo convert_encoding("到诊率", "GBK"); ?></h4></div>
-                                <div class="panel-body text-center" style="font-size:36px;"><strong><?php echo $all_content > 0 ? round($all_come / $all_content * 100, 2) : 0; ?>%</strong></div>
-                            </div>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th><?php echo convert_encoding("姓名", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("性别", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("年龄", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("电话", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("QQ", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("专家号", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("咨询内容", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("接待", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("预约时间", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("病患类型", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("媒体来源", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("关键词", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("地区", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("备注", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("客服", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("回访", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("治疗费用", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("赴约情况", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("添加时间", "GBK"); ?></th>
+                                    <th><?php echo convert_encoding("医院", "GBK"); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (count($all_data) > 0): ?>
+                                    <?php foreach ($all_data as $row): ?>
+                                        <tr>
+                                            <td><?php echo $row["name"]; ?></td>
+                                            <td><?php echo $row["sex"] == 1 ? convert_encoding("男", "GBK") : convert_encoding("女", "GBK"); ?></td>
+                                            <td><?php echo $row["age"] > 0 ? $row["age"] : ""; ?></td>
+                                            <td>
+                                                <?php if ($uinfo["show_tel"] == 1 || $row["author"] == $realname || $username == 'admin'): ?>
+                                                    <?php echo $row["tel"]; ?>
+                                                <?php else: ?>
+                                                    -
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?php echo $row["qq"]; ?></td>
+                                            <td><?php echo $row["zhuanjia_num"]; ?></td>
+                                            <td><?php echo $row["content"]; ?></td>
+                                            <td><?php echo $row["jiedai"]; ?></td>
+                                            <td><?php echo date("Y-m-d H:i", $row["order_date"]); ?></td>
+                                            <td><?php echo isset($disease_id_name[$row["disease_id"]]) ? $disease_id_name[$row["disease_id"]] : ""; ?></td>
+                                            <td><?php echo $row["media_from"]; ?></td>
+                                            <td><?php echo $row["engine_key"]; ?></td>
+                                            <td><?php echo $row["is_local"] == 1 ? convert_encoding("本市", "GBK") : convert_encoding("外地", "GBK"); ?></td>
+                                            <td><?php echo $row["memo"]; ?></td>
+                                            <td><?php echo $row["author"]; ?></td>
+                                            <td><?php echo $row["huifang"] > 0 ? '<span class="label label-success">'.convert_encoding("已回访", "GBK").'</span>' : '<span class="label label-default">'.convert_encoding("未回访", "GBK").'</span>'; ?></td>
+                                            <td><?php echo $row["fee"]; ?></td>
+                                            <td><span class="<?php echo $status_array[$row["status"]]["class"]; ?>"><?php echo $status_array[$row["status"]]["text"]; ?></span></td>
+                                            <td><?php echo date("Y-m-d H:i", $row["addtime"]); ?></td>
+                                            <td><?php echo isset($hospital_id_name[$row["hospital_id"]]) ? $hospital_id_name[$row["hospital_id"]] : $row["hospital_id"]; ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td colspan="20" class="text-center"><?php echo convert_encoding("暂无数据", "GBK"); ?></td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
 
-                    <div class="row" style="margin-top:30px;">
-                        <div class="col-md-12">
-                            <h4><?php echo convert_encoding("各医院统计明细", "GBK"); ?></h4>
-                            <table class="table table-bordered table-striped">
-                                <thead><tr><th><?php echo convert_encoding("医院ID", "GBK"); ?></th><th><?php echo convert_encoding("总人数", "GBK"); ?></th><th><?php echo convert_encoding("已到诊", "GBK"); ?></th><th><?php echo convert_encoding("未到诊", "GBK"); ?></th><th><?php echo convert_encoding("到诊率", "GBK"); ?></th></tr></thead>
-                                <tbody>
-                                    <?php foreach ($hospital_ids as $hospital_id) {
-                                        $table = "patient_" . $hospital_id;
-                                        if ($come == -1) {
-                                            $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
-                                            $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
-                                            $not_count = $content - $come_count;
-                                            $rate = $content > 0 ? round($come_count / $content * 100, 2) : 0;
-                                        } elseif ($come == 1) {
-                                            $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
-                                            $come_count = $content;
-                                            $not_count = 0;
-                                            $rate = 100;
-                                        } else {
-                                            $content = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status<>3", 1, "count");
-                                            $come_count = $db->query("select count(*) as count from $table where $sqlwhere and order_date>=$tb and order_date<$te and status=1", 1, "count");
-                                            $not_count = $content - $come_count;
-                                            $content = $not_count;
-                                            $come_count = 0;
-                                            $rate = 0;
-                                        }
-                                    ?>
-                                    <tr><td><?php echo $hospital_id; ?></td><td><?php echo $content; ?></td><td><?php echo $come_count; ?></td><td><?php echo $not_count; ?></td><td><?php echo $rate; ?>%</td></tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
+                    <div class="row" style="margin-top:20px;">
+                        <div class="col-md-12 text-center">
+                            <nav>
+                                <ul class="pagination">
+                                    <?php if ($page > 1): ?>
+                                        <li><a href="?<?php echo $param_str; ?>&page=1"><?php echo convert_encoding("首页", "GBK"); ?></a></li>
+                                        <li><a href="?<?php echo $param_str; ?>&page=<?php echo $page - 1; ?>"><?php echo convert_encoding("上一页", "GBK"); ?></a></li>
+                                    <?php endif; ?>
+                                    <?php for ($i = max(1, $page - 2); $i <= min($pagecount, $page + 2); $i++): ?>
+                                        <li <?php if ($i == $page) echo 'class="active"'; ?>><a href="?<?php echo $param_str; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+                                    <?php endfor; ?>
+                                    <?php if ($page < $pagecount): ?>
+                                        <li><a href="?<?php echo $param_str; ?>&page=<?php echo $page + 1; ?>"><?php echo convert_encoding("下一页", "GBK"); ?></a></li>
+                                        <li><a href="?<?php echo $param_str; ?>&page=<?php echo $pagecount; ?>"><?php echo convert_encoding("尾页", "GBK"); ?></a></li>
+                                    <?php endif; ?>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
 
